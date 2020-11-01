@@ -7,6 +7,9 @@ const dotenv = require("dotenv");
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/post");
 
+//? PORT
+var PORT = process.env.PORT || 3000;
+
 //? Connect to DB
 dotenv.config();
 
@@ -24,6 +27,6 @@ app.use(express.json());
 app.use("/api/user", authRoute);
 app.use("/api/posts", postRoute);
 
-app.listen(3000, () =>
+app.listen(PORT, () =>
   console.log("\x1b[36m%s\x1b[0m", "Server up and running at port: 3000")
 );
