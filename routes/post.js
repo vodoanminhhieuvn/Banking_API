@@ -5,4 +5,10 @@ router.get("/", verify, (req, res) => {
   res.json({ posts: { title: "my first post", description: "random data" } });
 });
 
+router.get("/upload", verify, (req, res) => {
+  res.json({
+    message: POST,
+  });
+});
+
 module.exports = router;
