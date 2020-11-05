@@ -3,7 +3,6 @@ const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const multer = require("multer");
-const path = require("path");
 
 //? Import Routes
 const authRoute = require("./routes/auth");
@@ -20,7 +19,7 @@ function errHandler(err, req, res, next) {
 }
 
 //? PORT
-var PORT = process.env.PORT || 3000;
+var PORT = process.env.PORT || 9000;
 
 //? Connect to DB
 dotenv.config();
@@ -33,12 +32,15 @@ mongoose.connect(
 );
 
 //? Default Route
-app.get("/", (req, res) => {
-  res.json({
-    success: 1,
-    message: "Connect successfully to API",
-  });
-});
+// app.set("views", __dirname + "/views");
+// app.engine("html", require("ejs").renderFile);
+
+// app.set("view engine", "ejs");
+
+// app.get("/hello", (req, res) => {
+//   res.write("index.html");
+// });
+app.use(express.static(__dirname + "/public"));
 
 //? URL image
 app.use("/profile", express.static("upload/images"));

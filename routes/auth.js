@@ -75,7 +75,7 @@ const upload = multer({
 router.get("/upload", upload.single("profile"), verify, async (req, res) => {
   res.json({
     success: 1,
-    profile_url: `http://localhost:3000/profile/${req.file.filename}`,
+    profile_url: `http://localhost:9000/profile/${req.file.filename}`,
   });
 });
 
