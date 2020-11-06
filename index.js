@@ -17,6 +17,7 @@ function errHandler(err, req, res, next) {
     });
   }
 }
+//? Default Route
 
 //? PORT
 var PORT = process.env.PORT || 9000;
@@ -32,15 +33,13 @@ mongoose.connect(
 );
 
 //? Default Route
-// app.set("views", __dirname + "/views");
-// app.engine("html", require("ejs").renderFile);
-
-// app.set("view engine", "ejs");
-
-// app.get("/hello", (req, res) => {
-//   res.write("index.html");
-// });
 app.use(express.static(__dirname + "/public"));
+app.get("/api", (req, res) => {
+  res.json({
+    success: 1,
+    message: "Connected to API",
+  });
+});
 
 //? URL image
 app.use("/profile", express.static("upload/images"));
@@ -55,6 +54,8 @@ app.use("/api/user", authRoute);
 app.use("/api/posts", postRoute);
 
 //! We set port 9000 for Docker container
+//! run docker build -t node-docker-api .
+//! run docker run -it -p 9000:9000 -v ${pwd}:/app node-docker-api
 app.listen(PORT, () =>
   console.log("\x1b[36m%s\x1b[0m", `Server up and running at port: ${PORT}`)
 );
