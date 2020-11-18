@@ -26,7 +26,7 @@ const registerValidation = (data) => {
 
 const loginValidation = (data) => {
   const schema = Joi.object({
-    email: Joi.string().min(6).required().email(),
+    email: Joi.string().email().min(6).required(),
     password: Joi.string().min(6).required(),
   });
   return schema.validate(data);
@@ -34,7 +34,15 @@ const loginValidation = (data) => {
 
 const cardValidation = (data) => {
   const schema = Joi.object({
-    _id: Joi.string().required().length(16),
+    _id: Joi.string()
+      .regex(/^[0-9]+$/)
+      .required()
+      .length(16)
+      .messages({
+        "string.empty": "Card id can not be empty",
+        "string.length": "Card id must be contain 16 character",
+        "string.pattern.base": "Invalid ID number",
+      }),
     balance: Joi.number().min(0),
     PIN: Joi.string()
       .regex(/^[0-9]+$/)
@@ -43,7 +51,7 @@ const cardValidation = (data) => {
       .messages({
         "string.pattern.base": "Invalid PIN number",
       }),
-    email: Joi.string().min(6).required().email(),
+    email: Joi.string().email().min(6).required(),
   });
   return schema.validate(data);
 };

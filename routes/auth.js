@@ -70,15 +70,17 @@ router.post("/login", async (req, res) => {
   res.send({ Token: token });
 });
 
-//? Card login
+//? Card create
 router.post("/card-create", async (req, res) => {
   const { error } = cardValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   //? Checking if the user is exist
   const user = await User.findOne({ email: req.body.email });
-  if (!user)
-    return res.status(400).json({ success: 0, error: "User is not exist" });
+  if (!user) return res.status(400).send("User is not exist");
+  //? Checking if the user already had card
+  const checkCard = await Card.findOne({ userId: user._id });
+  if (checkCard) return res.status(400).send("User already had card");
 
   //? Create new card
   const card = new Card({
