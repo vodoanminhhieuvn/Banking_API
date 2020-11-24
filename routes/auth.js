@@ -11,6 +11,7 @@ const {
   registerValidation,
   loginValidation,
   cardValidation,
+  cardLoginValidation,
 } = require("../validation");
 
 //? Register Route
@@ -78,27 +79,56 @@ router.post("/card-create", async (req, res) => {
   //? Checking if the user is exist
   const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send("User is not exist");
+
   //? Checking if the user already had card
   const checkCard = await Card.findOne({ userId: user._id });
   if (checkCard) return res.status(400).send("User already had card");
+
+  //? Hash the PIN
+  const salt = await bcrypt.genSalt(10);
+  const hashPIN = await bcrypt.hash(req.body.PIN, salt);
 
   //? Create new card
   const card = new Card({
     _id: req.body._id,
     userId: user._id,
     balance: req.body.balance,
-    PIN: req.body.PIN,
+    PIN: hashPIN,
   });
 
   try {
     const saveCard = await card.save();
-    res.send({ cardId: card._id });
+    res.send({ cardId: card._id, PIN: hashPIN });
   } catch (err) {
     res.status(400).send(err);
   }
 });
 
+//? Card login
+router.post("/card-login", async (req, res) => {
+  const { error } = cardLoginValidation(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  //? Check if card is exist
+  const card = await Card.findOne({ _id: req.body.cardId });
+  if (!card) return res.status(400).send("Card is not exist");
+
+  //? Check if PIN is exist
+  const validPIN = await bcrypt.compare(req.body.PIN, card.PIN);
+  if (!validPIN) return res.status(400).send("PIN is wrong");
+
+  //? Create and assign a token
+  const cardToken = jwt.sign({ _id: card._id }, process.env.TOKEN_SECRET);
+
+  //? Decode Token
+  const userID = jwt.decode(cardToken)._id;
+  //? Send back Token Json
+  res.send({ Token: cardToken, userID: userID });
+});
+
 //? Upload Image Route
+//TODO CREATE DIFFERENT UPLOAD
+
 const storage = multer.diskStorage({
   destination: "./upload/images",
   filename: (req, file, cb) => {
@@ -114,7 +144,8 @@ const upload = multer({
   limits: { fileSize: 9000000 },
 });
 
-router.get("/upload", upload.single("profile"), verify, async (req, res) => {
+router.get("/upload", upload.single("profile"), async (req, res) => {
+  // console.log(req.file.fileName);
   res.json({
     success: 1,
     profile_url: `http://localhost:9000/profile/${req.file.filename}`,

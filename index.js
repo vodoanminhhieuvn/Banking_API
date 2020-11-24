@@ -3,10 +3,12 @@ const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const multer = require("multer");
+const { lookup } = require("geoip-lite");
 
 //? Import Routes
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/post");
+const cardManagementRoute = require("./routes/cardManagement");
 
 //? Handle if file is not accepted by server
 function errHandler(err, req, res, next) {
@@ -17,7 +19,6 @@ function errHandler(err, req, res, next) {
     });
   }
 }
-//? Default Route
 
 //? PORT
 var PORT = process.env.PORT || 9000;
@@ -39,6 +40,9 @@ app.get("/api", (req, res) => {
     success: 1,
     message: "Connected to API",
   });
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+  console.log(ip);
+  console.log(lookup(ip));
 });
 
 //? URL image
@@ -52,6 +56,7 @@ app.use(express.json());
 //? Route Middleware
 app.use("/api/user", authRoute);
 app.use("/api/posts", postRoute);
+app.use("/api", cardManagementRoute);
 
 //! We set port 9000 for Docker container
 //! run docker build -t node-docker-api .

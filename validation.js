@@ -56,6 +56,47 @@ const cardValidation = (data) => {
   return schema.validate(data);
 };
 
+const cardLoginValidation = (data) => {
+  const schema = Joi.object({
+    cardId: Joi.string()
+      .regex(/^[0-9]+$/)
+      .required()
+      .length(16)
+      .messages({
+        "string.empty": "Card id can not be empty",
+        "string.length": "Card id must be contain 16 character",
+        "string.pattern.base": "Invalid ID number",
+      }),
+    PIN: Joi.string()
+      .regex(/^[0-9]+$/)
+      .required()
+      .length(6)
+      .messages({
+        "string.empty": "Card id can not be empty",
+        "string.length": "Card id must be contain 6 character",
+        "string.pattern.base": "Invalid ID number",
+      }),
+  });
+  return schema.validate(data);
+};
+
+const transactionDetailValidation = (data) => {
+  const schema = Joi.object({
+    fund: Joi.number().required(),
+    cardId: Joi.string()
+      .regex(/^[0-9]+$/)
+      .required()
+      .length(16)
+      .messages({
+        "string.empty": "Card id can not be empty",
+        "string.length": "Card id must be contain 16 character",
+        "string.pattern.base": "Invalid ID number",
+      }),
+  });
+  return schema.validate(data);
+};
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.cardValidation = cardValidation;
+module.exports.cardLoginValidation = cardLoginValidation;
+module.exports.transactionDetailValidation = transactionDetailValidation;
