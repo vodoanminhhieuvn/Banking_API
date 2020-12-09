@@ -1,4 +1,5 @@
 const express = require("express");
+var cors = require("cors");
 const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -9,6 +10,7 @@ const { lookup } = require("geoip-lite");
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/post");
 const cardManagementRoute = require("./routes/cardManagement");
+const atmManagementRoute = require("./routes/atmManagement");
 
 //? Handle if file is not accepted by server
 function errHandler(err, req, res, next) {
@@ -57,6 +59,7 @@ app.use(express.json());
 app.use("/api/user", authRoute);
 app.use("/api/posts", postRoute);
 app.use("/api", cardManagementRoute);
+app.use("/api", atmManagementRoute);
 
 //! We set port 9000 for Docker container
 //! run docker build -t node-docker-api .

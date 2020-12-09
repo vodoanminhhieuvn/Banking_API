@@ -95,8 +95,17 @@ const transactionDetailValidation = (data) => {
   });
   return schema.validate(data);
 };
+
+const transactionValidation = (data) => {
+  const schema = Joi.object({
+    fund: Joi.number().required(),
+  });
+  return schema.validate(data);
+};
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.cardValidation = cardValidation;
 module.exports.cardLoginValidation = cardLoginValidation;
 module.exports.transactionDetailValidation = transactionDetailValidation;
+module.exports.transactionValidation = transactionValidation;

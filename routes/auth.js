@@ -15,7 +15,7 @@ const {
 } = require("../validation");
 
 //? Register Route
-router.post("/register", async (req, res) => {
+router.post("/register", verify, async (req, res) => {
   //? VALIDATE DATA BEFORE WE A USER
   //? Check clients requests
   const { error } = registerValidation(req.body);
@@ -68,11 +68,25 @@ router.post("/login", async (req, res) => {
   // res.header("auth-token", token).send(token);
 
   //? Send back Token Json
-  res.send({ Token: token });
+  //? Checking if user has card
+  const card = await Card.findOne({ userId: user._id });
+  if (card) {
+    res.send({
+      Token: token,
+      User: user,
+      Card: { CardId: card._id, Balance: card.balance },
+    });
+  } else {
+    res.send({
+      Token: token,
+      User: user,
+      Card: { CardId: "Unknown", Balance: 0 },
+    });
+  }
 });
 
 //? Card create
-router.post("/card-create", async (req, res) => {
+router.post("/card-create", verify, async (req, res) => {
   const { error } = cardValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -107,7 +121,6 @@ router.post("/card-create", async (req, res) => {
 //? Card login
 router.post("/card-login", async (req, res) => {
   const { error } = cardLoginValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
 
   //? Check if card is exist
   const card = await Card.findOne({ _id: req.body.cardId });
@@ -120,10 +133,21 @@ router.post("/card-login", async (req, res) => {
   //? Create and assign a token
   const cardToken = jwt.sign({ _id: card._id }, process.env.TOKEN_SECRET);
 
-  //? Decode Token
-  const userID = jwt.decode(cardToken)._id;
-  //? Send back Token Json
-  res.send({ Token: cardToken, userID: userID });
+  const user = await User.findById(card.userId);
+
+  if (user) {
+    res.send({
+      Token: cardToken,
+      User: user,
+      Card: { CardId: card._id, Balance: card.balance },
+    });
+  } else {
+    res.send({
+      Token: cardToken,
+      User: user,
+      Card: { CardId: "Unknown", Balance: 0 },
+    });
+  }
 });
 
 //? Upload Image Route
@@ -140,11 +164,12 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage: storage,
-  limits: { fileSize: 9000000 },
+  storage: storage, //? Store the user image to upload folder
+  limits: { fileSize: 9000000 }, //? Limit image size to 9MB
 });
+1;
 
-router.get("/upload", upload.single("profile"), async (req, res) => {
+router.get("/upload", verify, upload.single("profile"), async (req, res) => {
   // console.log(req.file.fileName);
   res.json({
     success: 1,
