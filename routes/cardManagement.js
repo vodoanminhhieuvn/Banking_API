@@ -4,10 +4,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Card = require("../model/Card");
 const TransactionDetail = require("../model/Transaction");
+const Notification = require("../model/Notification");
 
 const {
   transactionDetailValidation,
   transactionValidation,
+  requestCardValidation,
 } = require("../validation");
 
 router.post("/send-money", verify, async (req, res) => {
@@ -204,6 +206,39 @@ router.get("/transaction/:filterType", verify, async (req, res) => {
     fundASC: transactionFundAsc,
     fundDSC: transactionFundDsc,
   });
+});
+
+router.post("/requestCard", async (req, res) => {
+  const { error } = requestCardValidation(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  //? Check if card is exist
+  const card = await Card.findOne({ _id: req.body.cardId });
+  if (!card) return res.status(400).send("Card is not exist");
+
+  const generateOTP = Math.floor(100000 + Math.random() * 900000);
+
+  const notification = new Notification({
+    cardId: req.body.cardId,
+    type: "OTP",
+    message: generateOTP.toString(),
+  });
+
+  saveNotification = await notification.save();
+
+  res.send({
+    message: "Send successfully",
+    otp: generateOTP,
+  });
+});
+
+router.post("/getOtp", async (req, res) => {
+  if (!req.body.cardId) return res.status(400).send("Card ID is required");
+
+  const notification = await Notification.findOne({ cardId: req.body.cardId });
+  if (!notification) return res.send("Empty");
+
+  res.send({ otp: notification.message });
 });
 
 module.exports = router;

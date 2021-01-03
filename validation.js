@@ -103,9 +103,27 @@ const transactionValidation = (data) => {
   return schema.validate(data);
 };
 
+const requestCardValidation = (data) => {
+  const schema = Joi.object({
+    type: Joi.string().required(),
+    cardId: Joi.string().required(),
+    date: Date.now(),
+  });
+  return schema.validate(data);
+};
+
+// const atmValidation = (data) => {
+//   const schema = Joi.object({
+//     location: Joi.string().required(),
+//     currentCash: Joi.number().required(),
+//   });
+//   return schema.validate(data);
+// };
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.cardValidation = cardValidation;
 module.exports.cardLoginValidation = cardLoginValidation;
 module.exports.transactionDetailValidation = transactionDetailValidation;
 module.exports.transactionValidation = transactionValidation;
+module.exports.requestCardValidation = requestCardValidation;
