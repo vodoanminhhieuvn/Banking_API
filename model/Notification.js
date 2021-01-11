@@ -17,7 +17,7 @@ const notificationSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  expire_at: { type: Date, default: Date.now, expires: 10 },
+  expire_at: { type: Date, default: Date.now, expires: 30 },
 });
 
 module.exports = mongoose.model("Notification", notificationSchema);
