@@ -235,11 +235,11 @@ router.post("/requestCard", async (req, res) => {
 router.post("/getOtp", async (req, res) => {
   if (!req.body.cardId) return res.status(400).send("Card ID is required");
 
-  const notification = await Notification.find({ cardId: req.body.cardId });
+  const notification = await Notification.findOne({ cardId: req.body.cardId });
   if (!notification) return res.send("Empty");
 
-  // res.send({ otp: notification.message });
-  res.send(notification);
+  res.send({ otp: notification.message });
+  // res.send(notification);
 });
 
 module.exports = router;
