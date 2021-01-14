@@ -238,7 +238,7 @@ router.post("/getOtp", async (req, res) => {
   const notification = await Notification.findOne({
     cardId: req.body.cardId,
   }).sort({ $natural: -1 });
-  if (!notification) return res.send("Empty");
+  if (!notification) return res.send({ otp: "Empty" });
 
   res.send({ otp: notification.message });
   // res.send(notification);
